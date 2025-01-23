@@ -1,10 +1,9 @@
 // src/database/schemas/taxpayer.schema.ts
 // Left some imports for the base structure
-import { Schema, SchemaFactory, Prop, Index } from '@nestjs/mongoose';
+import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import {TaxType, 
   ComplianceStatus, 
-  RiskLevel,
   RiskTrend,
   RiskEventType} from "../../types/common"
 
@@ -95,28 +94,34 @@ export class RiskScore {
    exposure: number;
 }
 
-@Schema({ _id: false })
+@Schema({ _id: true })
 export class RiskComponents {
-  // TODO: Add properties
+  @Prop({ 
+    required: true, 
+  })
+  vat: TaxTypeRisk; 
+  
+  @Prop({ 
+    required: true 
+  })
+  incomeTax: TaxTypeRisk;
+
 }
 
-@Schema({ _id: false })
+@Schema({ _id: true })
 export class RiskProfile {
   @Prop({ 
     required: true,
-    type: RiskScore
    })
-   overall: RiskScore;
+   overall: RiskScore; //Elements inside RiskScore are already indexed so the only index is _id
 
    @Prop({
-    type: Map,
-    of: TaxTypeRisk,  // As both components are string:TaxTypeRisk
-    required: true,
+    required: true
   })
-  components: Map<string, TaxTypeRisk>;  // both keys gets mapped to TaxTypeRisk
+  components: RiskComponents;  // both keys gets mapped to TaxTypeRisk
 }
 
-@Schema({ _id: false })
+@Schema({ _id: true })
 export class RiskEvent {
   @Prop({ 
     required: true,
@@ -132,13 +137,12 @@ export class RiskEvent {
 
    @Prop({ 
     required: true,
-    index: true // due to not having a score, indexing exposure could work. together with the categorical data
-   })
+     })
    exposure: number;
 
 }
 
-@Schema({ _id: false })
+@Schema({ _id: true })
 export class HistoricalRiskData {
   @Prop({ 
     required: true,
@@ -172,10 +176,23 @@ export class HistoricalRiskData {
    events?: RiskEvent[];
 
 }
-
-@Schema()
+@Schema({ _id: true }) // The most appropiate index on TaxPayer would be over the whole schema instead of any of the props
 export class Taxpayer {
-  // TODO: Add properties
+  @Prop({ 
+    required: true,
+   })
+  taxpayer: TaxpayerInfo;
+
+  @Prop({ 
+    required: true,
+   })
+  riskProfile: RiskProfile;
+
+  @Prop({ 
+    required: true,
+    type: [HistoricalRiskData]
+   })
+  history: HistoricalRiskData[];
 }
 
 export const TaxpayerSchema = SchemaFactory.createForClass(Taxpayer);
