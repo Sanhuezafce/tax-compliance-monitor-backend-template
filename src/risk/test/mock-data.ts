@@ -106,3 +106,7 @@ export const mockTaxpayerData = {
 };
 
 export const mockTaxpayerHistory = mockTaxpayerData.history;
+//added const to export the rest of the data 
+// For now i am not using them but i will have them defined
+export const mockTaxpayerInfo = mockTaxpayerData.taxpayer;
+export const mockTaxpayerRiskProfile = mockTaxpayerData.riskProfile;
