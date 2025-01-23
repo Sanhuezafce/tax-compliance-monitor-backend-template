@@ -72,7 +72,7 @@ describe('RiskController (e2e)', () => {
       expect(mockModel.findOne).toHaveBeenCalledWith({ id: taxpayerId }); // Test the call was made with the given parameter
     });
 
-    it('should return 404 for non-existent taxpayer', () => {
+    it('should return 404 for non-existent taxpayer', async () => {
       // We use an empty string to simulate a non existing id
       const taxpayerNonId = "";
 
@@ -84,12 +84,12 @@ describe('RiskController (e2e)', () => {
       // Validate that a 404 status is returned
       expect(response.status).toBe(404);  
       expect(response.body).toEqual({ message: 'Taxpayer not found' }); // Displayed message when not found
-      expect(mockModel.findOne).toHaveBeenCalledWith({ id: nonExistentTaxpayerId });  // Test parameter
+      expect(mockModel.findOne).toHaveBeenCalledWith({ id: taxpayerNonId });  // Test parameter
     });
   });
   // Similar test as above, we change the return data and, it assumesthe taxpayer exists
   describe('/api/risk/:taxpayerId/history (GET)', () => {
-    it('should return taxpayer history', () => {
+    it('should return taxpayer history', async () => {
       // We use the info provided in mockData
       const taxpayerId = mockTaxpayerData.taxpayer.id;
       const taxpayerHistory = mockTaxpayerData.history;
@@ -112,12 +112,12 @@ describe('RiskController (e2e)', () => {
       // The data should be null
       mockModel.findOne.mockResolvedValueOnce(null);
 
-      const response = await request(app.getHttpServer()).get(`/api/risk/${taxpayerId}/history`)
+      const response = await request(app.getHttpServer()).get(`/api/risk/${taxpayerNonId}/history`)
 
       // Validate that a 404 status is returned
       expect(response.status).toBe(404);  
       expect(response.body).toEqual({ message: 'Taxpayer not found' }); // Displayed message when not found
-      expect(mockModel.findOne).toHaveBeenCalledWith({ id: nonExistentTaxpayerId });  // Test parameter
+      expect(mockModel.findOne).toHaveBeenCalledWith({ id: taxpayerNonId });  // Test parameter
     });
   });
 });
